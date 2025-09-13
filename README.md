@@ -1,6 +1,18 @@
-# Todo App with Express & TypeScript
+# 📝 初学者向けTodoアプリ（Express + TypeScript）
+
+**Web開発初学者のための学習用プロジェクト**
 
 Express.js、TypeScript、Prisma、PostgreSQLを使用したTodoアプリケーションです。
+実際の開発で使われる技術を、**理解しやすい形**で実装しています。
+
+## ⚠️ 学習用プロジェクトについて
+
+このプロジェクトは**教育目的**で作成されており、以下の点で本番環境とは異なります：
+- パスワードが平文で保存される（学習の簡素化のため）
+- JWTシークレットがハードコードされている
+- エラーメッセージが詳細に表示される
+
+**本番環境では絶対に使用しないでください。**
 
 ## 機能
 
@@ -68,12 +80,16 @@ docker-compose down
 
 詳細なAPI仕様は [doc/api-usage.md](./doc/api-usage.md) を参照してください。
 
-## ドキュメント
+## 📚 学習ドキュメント
 
+### 初学者向け
+- **[🎯 学習ガイド](./doc/learning-guide.md)** ← まずはここから！
+- [API使用方法](./doc/api-usage.md) - 実際にAPIを試してみよう
+
+### 技術詳細
 - [セットアップコマンド](./doc/setup-commands.md)
 - [使用技術概要](./doc/technologies.md)
 - [アーキテクチャ設計](./doc/architecture.md)
-- [API使用方法](./doc/api-usage.md)
 - [リンター設定](./doc/linting.md)
 
 ## 開発

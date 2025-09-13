@@ -1,18 +1,22 @@
-# API使用方法
+# API使用方法（初学者向け）
 
-## 認証エンドポイント
+このドキュメントでは、TodoアプリのAPIの使い方を**初学者にも分かりやすく**説明します。
+
+## 🔐 認証エンドポイント
 
 ### ユーザー登録
+新しいユーザーアカウントを作成します。
+
 ```bash
 curl -X POST http://localhost:3000/auth/register \
   -H "Content-Type: application/json" \
   -d '{
     "username": "testuser",
-    "password": "testpass123"
+    "password": "mypassword"
   }'
 ```
 
-**レスポンス例:**
+**成功レスポンス例:**
 ```json
 {
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -23,15 +27,26 @@ curl -X POST http://localhost:3000/auth/register \
 }
 ```
 
+**エラーレスポンス例:**
+```json
+{
+  "error": "このユーザー名は既に使用されています"
+}
+```
+
 ### ログイン
+既存のユーザーでログインします。
+
 ```bash
 curl -X POST http://localhost:3000/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "username": "testuser",
-    "password": "testpass123"
+    "password": "mypassword"
   }'
 ```
+
+**💡 重要:** レスポンスで返される`token`は、以降のAPI呼び出しで必要になります！
 
 ## Todoエンドポイント
 

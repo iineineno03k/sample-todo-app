@@ -1,5 +1,4 @@
 import { PrismaClient } from '@prisma/client';
-import bcrypt from 'bcryptjs';
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import type { AuthResponse, CreateUserRequest, LoginRequest } from '../types';
@@ -7,43 +6,40 @@ import type { AuthResponse, CreateUserRequest, LoginRequest } from '../types';
 const router = express.Router();
 const prisma = new PrismaClient();
 
-// User registration
+// 🔐 ユーザー登録
+// 注意: このコードは学習用です。本番環境ではパスワードをハッシュ化してください！
 router.post('/register', async (req: express.Request, res: express.Response) => {
   try {
     const { username, password }: CreateUserRequest = req.body;
 
+    // 入力チェック
     if (!username || !password) {
-      return res.status(400).json({ error: 'Username and password are required' });
+      return res.status(400).json({ error: 'ユーザー名とパスワードが必要です' });
     }
 
-    // Check if user already exists
+    // 既存ユーザーチェック
     const existingUser = await prisma.user.findUnique({
       where: { username },
     });
 
     if (existingUser) {
-      return res.status(409).json({ error: 'Username already exists' });
+      return res.status(409).json({ error: 'このユーザー名は既に使用されています' });
     }
 
-    // Hash password
-    const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
-
-    // Create user
+    // ユーザー作成（パスワードは平文で保存 - 学習用のため）
     const user = await prisma.user.create({
       data: {
         username,
-        password: hashedPassword,
+        password, // ⚠️ 平文パスワード（学習用）
       },
     });
 
-    // Generate JWT token
-    const secret = process.env.JWT_SECRET;
-    if (!secret) {
-      return res.status(500).json({ error: 'JWT secret not configured' });
-    }
-
-    const token = jwt.sign({ userId: user.id }, secret, { expiresIn: '24h' });
+    // JWTトークン生成（シンプル版）
+    const token = jwt.sign(
+      { userId: user.id, username: user.username }, // ペイロード
+      'simple-secret-key', // シークレット（本番では環境変数を使用）
+      { expiresIn: '7d' } // 7日間有効
+    );
 
     const response: AuthResponse = {
       token,
@@ -56,41 +52,38 @@ router.post('/register', async (req: express.Request, res: express.Response) => 
     res.status(201).json(response);
   } catch (error) {
     console.error('Registration error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: 'サーバーエラーが発生しました' });
   }
 });
 
-// User login
+// 🔑 ユーザーログイン
 router.post('/login', async (req: express.Request, res: express.Response) => {
   try {
     const { username, password }: LoginRequest = req.body;
 
+    // 入力チェック
     if (!username || !password) {
-      return res.status(400).json({ error: 'Username and password are required' });
+      return res.status(400).json({ error: 'ユーザー名とパスワードが必要です' });
     }
 
-    // Find user
+    // ユーザー検索
     const user = await prisma.user.findUnique({
       where: { username },
     });
 
     if (!user) {
-      return res.status(401).json({ error: 'Invalid credentials' });
+      return res.status(401).json({ error: 'ユーザー名またはパスワードが間違っています' });
     }
 
-    // Verify password
-    const isValidPassword = await bcrypt.compare(password, user.password);
-    if (!isValidPassword) {
-      return res.status(401).json({ error: 'Invalid credentials' });
+    // パスワード確認（平文比較 - 学習用のため）
+    if (user.password !== password) {
+      return res.status(401).json({ error: 'ユーザー名またはパスワードが間違っています' });
     }
 
-    // Generate JWT token
-    const secret = process.env.JWT_SECRET;
-    if (!secret) {
-      return res.status(500).json({ error: 'JWT secret not configured' });
-    }
-
-    const token = jwt.sign({ userId: user.id }, secret, { expiresIn: '24h' });
+    // JWTトークン生成
+    const token = jwt.sign({ userId: user.id, username: user.username }, 'simple-secret-key', {
+      expiresIn: '7d',
+    });
 
     const response: AuthResponse = {
       token,
@@ -103,7 +96,7 @@ router.post('/login', async (req: express.Request, res: express.Response) => {
     res.json(response);
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: 'サーバーエラーが発生しました' });
   }
 });
 
