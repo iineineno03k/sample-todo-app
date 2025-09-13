@@ -15,9 +15,12 @@ module.exports = {
 
   // セットアップファイル
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
+  
+  // テスト環境変数設定
+  setupFiles: ['<rootDir>/jest.setup.js'],
 
   // モジュールパス設定
-  moduleNameMapping: {
+  moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
 
