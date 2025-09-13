@@ -74,6 +74,7 @@ docker-compose down
 - [使用技術概要](./doc/technologies.md)
 - [アーキテクチャ設計](./doc/architecture.md)
 - [API使用方法](./doc/api-usage.md)
+- [リンター設定](./doc/linting.md)
 
 ## 開発
 
@@ -88,6 +89,19 @@ npm run db:migrate
 
 # Prismaクライアント再生成
 npm run db:generate
+```
+
+### コード品質管理
+
+```bash
+# リンティング
+npm run lint
+
+# 自動修正
+npm run lint:fix
+
+# フォーマット
+npm run format
 ```
 
 ### プロジェクト構造

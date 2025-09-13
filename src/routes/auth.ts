@@ -1,8 +1,8 @@
-import express from 'express';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
-import { CreateUserRequest, LoginRequest, AuthResponse } from '../types';
+import bcrypt from 'bcryptjs';
+import express from 'express';
+import jwt from 'jsonwebtoken';
+import type { AuthResponse, CreateUserRequest, LoginRequest } from '../types';
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -18,7 +18,7 @@ router.post('/register', async (req: express.Request, res: express.Response) => 
 
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
-      where: { username }
+      where: { username },
     });
 
     if (existingUser) {
@@ -33,8 +33,8 @@ router.post('/register', async (req: express.Request, res: express.Response) => 
     const user = await prisma.user.create({
       data: {
         username,
-        password: hashedPassword
-      }
+        password: hashedPassword,
+      },
     });
 
     // Generate JWT token
@@ -49,8 +49,8 @@ router.post('/register', async (req: express.Request, res: express.Response) => 
       token,
       user: {
         id: user.id,
-        username: user.username
-      }
+        username: user.username,
+      },
     };
 
     res.status(201).json(response);
@@ -71,7 +71,7 @@ router.post('/login', async (req: express.Request, res: express.Response) => {
 
     // Find user
     const user = await prisma.user.findUnique({
-      where: { username }
+      where: { username },
     });
 
     if (!user) {
@@ -96,8 +96,8 @@ router.post('/login', async (req: express.Request, res: express.Response) => {
       token,
       user: {
         id: user.id,
-        username: user.username
-      }
+        username: user.username,
+      },
     };
 
     res.json(response);

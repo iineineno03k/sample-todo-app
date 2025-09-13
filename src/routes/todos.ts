@@ -1,7 +1,7 @@
-import express from 'express';
 import { PrismaClient, TodoStatus } from '@prisma/client';
-import { authenticateToken, AuthRequest } from '../middleware/auth';
-import { CreateTodoRequest, UpdateTodoRequest, UpdateTodoStatusRequest } from '../types';
+import express from 'express';
+import { type AuthRequest, authenticateToken } from '../middleware/auth';
+import type { CreateTodoRequest, UpdateTodoRequest, UpdateTodoStatusRequest } from '../types';
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -12,11 +12,14 @@ router.use(authenticateToken);
 // Get all todos for authenticated user
 router.get('/', async (req: AuthRequest, res: express.Response) => {
   try {
-    const userId = req.userId!;
-    
+    const userId = req.userId;
+    if (!userId) {
+      return res.status(401).json({ error: 'User not authenticated' });
+    }
+
     const todos = await prisma.todo.findMany({
       where: { userId },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
     });
 
     res.json(todos);
@@ -30,10 +33,13 @@ router.get('/', async (req: AuthRequest, res: express.Response) => {
 router.get('/:id', async (req: AuthRequest, res: express.Response) => {
   try {
     const { id } = req.params;
-    const userId = req.userId!;
+    const userId = req.userId;
+    if (!userId) {
+      return res.status(401).json({ error: 'User not authenticated' });
+    }
 
     const todo = await prisma.todo.findFirst({
-      where: { id, userId }
+      where: { id, userId },
     });
 
     if (!todo) {
@@ -51,7 +57,10 @@ router.get('/:id', async (req: AuthRequest, res: express.Response) => {
 router.post('/', async (req: AuthRequest, res: express.Response) => {
   try {
     const { title, description }: CreateTodoRequest = req.body;
-    const userId = req.userId!;
+    const userId = req.userId;
+    if (!userId) {
+      return res.status(401).json({ error: 'User not authenticated' });
+    }
 
     if (!title) {
       return res.status(400).json({ error: 'Title is required' });
@@ -62,8 +71,8 @@ router.post('/', async (req: AuthRequest, res: express.Response) => {
         title,
         description,
         userId,
-        status: TodoStatus.TODO
-      }
+        status: TodoStatus.TODO,
+      },
     });
 
     res.status(201).json(todo);
@@ -78,11 +87,14 @@ router.put('/:id', async (req: AuthRequest, res: express.Response) => {
   try {
     const { id } = req.params;
     const { title, description }: UpdateTodoRequest = req.body;
-    const userId = req.userId!;
+    const userId = req.userId;
+    if (!userId) {
+      return res.status(401).json({ error: 'User not authenticated' });
+    }
 
     // Check if todo exists and belongs to user
     const existingTodo = await prisma.todo.findFirst({
-      where: { id, userId }
+      where: { id, userId },
     });
 
     if (!existingTodo) {
@@ -93,8 +105,8 @@ router.put('/:id', async (req: AuthRequest, res: express.Response) => {
       where: { id },
       data: {
         ...(title && { title }),
-        ...(description !== undefined && { description })
-      }
+        ...(description !== undefined && { description }),
+      },
     });
 
     res.json(updatedTodo);
@@ -109,18 +121,21 @@ router.put('/:id/status', async (req: AuthRequest, res: express.Response) => {
   try {
     const { id } = req.params;
     const { status }: UpdateTodoStatusRequest = req.body;
-    const userId = req.userId!;
+    const userId = req.userId;
+    if (!userId) {
+      return res.status(401).json({ error: 'User not authenticated' });
+    }
 
     if (!status || !Object.values(TodoStatus).includes(status as TodoStatus)) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: 'Valid status is required',
-        validStatuses: Object.values(TodoStatus)
+        validStatuses: Object.values(TodoStatus),
       });
     }
 
     // Check if todo exists and belongs to user
     const existingTodo = await prisma.todo.findFirst({
-      where: { id, userId }
+      where: { id, userId },
     });
 
     if (!existingTodo) {
@@ -129,7 +144,7 @@ router.put('/:id/status', async (req: AuthRequest, res: express.Response) => {
 
     const updatedTodo = await prisma.todo.update({
       where: { id },
-      data: { status: status as TodoStatus }
+      data: { status: status as TodoStatus },
     });
 
     res.json(updatedTodo);
@@ -143,11 +158,14 @@ router.put('/:id/status', async (req: AuthRequest, res: express.Response) => {
 router.delete('/:id', async (req: AuthRequest, res: express.Response) => {
   try {
     const { id } = req.params;
-    const userId = req.userId!;
+    const userId = req.userId;
+    if (!userId) {
+      return res.status(401).json({ error: 'User not authenticated' });
+    }
 
     // Check if todo exists and belongs to user
     const existingTodo = await prisma.todo.findFirst({
-      where: { id, userId }
+      where: { id, userId },
     });
 
     if (!existingTodo) {
@@ -155,7 +173,7 @@ router.delete('/:id', async (req: AuthRequest, res: express.Response) => {
     }
 
     await prisma.todo.delete({
-      where: { id }
+      where: { id },
     });
 
     res.status(204).send();

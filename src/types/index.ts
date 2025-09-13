@@ -19,7 +19,7 @@ export interface Todo {
 export enum TodoStatus {
   TODO = 'TODO',
   IN_PROGRESS = 'IN_PROGRESS',
-  COMPLETED = 'COMPLETED'
+  COMPLETED = 'COMPLETED',
 }
 
 export interface CreateUserRequest {
