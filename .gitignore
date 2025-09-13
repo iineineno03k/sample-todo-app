@@ -1,3 +1,14 @@
-node_modules
-dist
+node_modules/
+dist/
 .env
+*.log
+.DS_Store
+.vscode/
+.idea/
+
+# Prisma
+prisma/migrations/
+!prisma/migrations/.gitkeep
+
+# Docker
+docker-compose.override.yml
